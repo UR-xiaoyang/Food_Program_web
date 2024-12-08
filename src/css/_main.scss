@@ -1,0 +1,119 @@
+main {
+  flex-grow: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.section {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  visibility: hidden; /* 默认隐藏 */
+  opacity: 0; /* 默认透明 */
+  transition: opacity 0.5s ease; /* 添加过渡效果 */
+  padding: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-image: url('../assets/root_background.png'); /* 确保背景正确显示 */
+  background-size: cover;
+  background-position: center;
+  color: $white-color;
+}
+
+.section.active {
+  visibility: visible; /* 使 section 可见 */
+  opacity: 1; /* 使 section 不透明 */
+}
+
+.home h1 {
+  font-size: $font-size-large;
+  margin-bottom: $spacing-unit;
+}
+
+.news-content {
+  display: flex;
+  align-items: center;
+  backdrop-filter: blur(10px); /* 磨砂效果 */
+  background-color: rgba(255, 255, 255, 0.3); /* 半透明白色背景 */
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.news img {
+  max-width: 40%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 20px;
+}
+
+.news-text {
+  flex: 1;
+}
+
+.news h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.news p {
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+}
+
+/* 计划单示例 */
+.paper-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-unit;
+  justify-content: space-around;
+  margin-top: $spacing-unit;
+}
+
+.day-card {
+  background-color: $white-color;
+  color: $black-color;
+  padding: $spacing-unit;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 30%; /* 每个卡片宽度 */
+  min-width: 280px;
+  border: 1px solid #ccc; /* 添加边框模拟纸张边缘 */
+}
+
+.day-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: $spacing-unit;
+  color: $primary-color;
+}
+
+.day-card ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.day-card li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.day-card input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.day-card label {
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+/* 已完成的条目样式（删除线） */
+.completed {
+  text-decoration: line-through;
+  color: #999;
+}

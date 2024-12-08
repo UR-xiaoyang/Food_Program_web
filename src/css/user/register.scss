@@ -1,0 +1,93 @@
+.register-background {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+  background-image: url('../../assets/root_background.png');
+  background-size: cover;
+  background-position: center;
+  backdrop-filter: blur(15px); /* 毛玻璃效果 */
+
+  padding: 20px;
+}
+
+.register-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 500px;
+  padding: 30px;
+  border-radius: 10px;
+  background-color: rgba(128, 128, 128, 0.5); /* 灰色背景色，透明度为 0.5 */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.register-title {
+  margin-bottom: 20px;
+  font-size: 2rem;
+  color: #ffffff; /* 调整字体颜色为白色 */
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
+}
+
+.form-group {
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.form-group label {
+  font-size: 1rem;
+  color: #ffffff; /* 标签颜色 */
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.2); /* 调整输入框背景透明度 */
+  color: #ffffff;
+}
+
+.form-group input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #f39c12;
+  box-shadow: 0 0 8px rgba(243, 156, 18, 0.6);
+}
+
+.cta-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #f39c12;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cta-button:hover {
+  background-color: #e67e22;
+}
+
+.login-link, .login-link a {
+  margin-top: 15px;
+  color: #ffffff; /* 修改为白色字体 */
+  text-decoration: none;
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
+}
+
+.error-message {
+  color: #ff4d4d; /* 错误信息颜色 */
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
+}

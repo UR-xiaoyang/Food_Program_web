@@ -1,0 +1,42 @@
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: $black-color;
+  color: $white-color;
+
+  .logo {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+
+  /* 导航栏样式 */
+  nav ul {
+    display: flex;
+    justify-content: center;
+    list-style-type: none;
+    padding: 0;
+  }
+
+  nav ul li {
+    margin: 0 15px;
+  }
+
+  nav ul li a {
+    color: $white-color;
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  nav ul li a:hover {
+    color: $primary-color;
+  }
+
+  /* 登录、注册、通知链接样式 */
+  .auth-links a {
+    color: $white-color;
+    margin-left: 20px;
+    text-decoration: none;
+  }
+}

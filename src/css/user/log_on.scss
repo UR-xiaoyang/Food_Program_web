@@ -1,0 +1,105 @@
+.frosted-glass-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.1); /* Slight white overlay for frosted effect */
+  border-radius: 15px;
+  backdrop-filter: blur(10px); /* Apply frosted glass blur */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Optional shadow for depth */
+}
+
+.login-background {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+  background-image: url('../../assets/root_background.png');
+  background-size: cover;
+  background-position: center;
+  padding: 20px;
+}
+.log
+
+.login-title {
+  margin-bottom: 20px;
+  opacity: 1;
+  font-size: 2rem;
+  background: linear-gradient(90deg, #ff6a00, #ee0979); /* 彩色渐变 */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  width: 100%;
+  max-width: 400px;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+.form-group label {
+  color: white; /* 标签颜色为白色 */
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.1); /* 输入框背景为透明 */
+  backdrop-filter: blur(5px); /* 毛玻璃效果 */
+  transition: box-shadow 0.3s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #f39c12;
+  box-shadow: 0 0 8px rgba(243, 156, 18, 0.6); /* 发光效果 */
+}
+
+.cta-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #f39c12;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, opacity 0.5s ease;
+  opacity: 1; /* 设置初始透明度为可见 */
+  display: block;
+}
+
+.cta-button:hover {
+  background-color: #e67e22;
+}
+
+.register-link {
+  margin-top: 15px;
+  color: white; /* 链接颜色为白色 */
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.error-message {
+  color: #ff4d4d;
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
+}
+
+.success-message {
+  color: #4caf50;
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
+}

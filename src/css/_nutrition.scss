@@ -1,0 +1,44 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.charts-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  gap: 30px;
+}
+
+canvas {
+  width: 100%;
+  max-width: 40%;
+  max-height: 400px;
+  aspect-ratio: 1;
+}
+
+@media (max-width: 768px) {
+  .charts-container {
+    flex-direction: column;
+  }
+
+  canvas {
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
+}
+
+/* 按钮样式 */
+.button-container {
+  margin-top: 20px;
+  text-align: center;
+}

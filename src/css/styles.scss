@@ -1,0 +1,30 @@
+// 导入 SCSS 文件
+@import 'variables';
+@import 'reset';
+@import 'header';
+@import 'main';
+@import 'button';
+@import 'footer';
+@import "nutrition";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background-light: #ffffff;
+    --foreground-light: #000000;
+    --background-dark: #000000;
+    --foreground-dark: #ffffff;
+  }
+
+  .dark {
+    --background: var(--background-dark);
+    --foreground: var(--foreground-dark);
+  }
+
+  .light {
+    --background: var(--background-light);
+    --foreground: var(--foreground-light);
+  }
+}
