@@ -40,15 +40,27 @@
         </ol>
       </div>
     </div>
+
+    <!-- 将 Modal 移到主容器内部 -->
+    <!-- 使用 v-model 替代 :is-visible 和 @close -->
+    <Modal v-model="showModal" @confirm="confirmJoin">
+      <template #content>
+        <h3 class="text-lg font-medium mb-4">确认加入计划</h3>
+        <p>您确定要加入"{{ title }}"计划吗？</p>
+      </template>
+    </Modal>
   </div>
 </template>
 
 <script setup lang="ts">
 // 基础依赖导入
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue'; // <-- 从 vue 导入 ref
 import { api } from '../../API_connect'; // 替换为项目中的axios实例
 // Lucide 图标库
 import { CheckCircle2, Clock } from 'lucide-vue-next';
+// 引入 useToast
+import { useToast } from 'vue-toastification';
+import Modal from '../Modal.vue';
 
 // 计划项类型定义
 export interface Plan {
@@ -81,30 +93,62 @@ onMounted(() => {
 
 // 定义组件事件
 const emit = defineEmits(['join']);
+// 获取 toast 实例
+const toast = useToast();
 
-// 新增加入计划方法
-const joinPlan = async () => {
+// 添加modal状态 - 使用 ref
+const showModal = ref(false);
+
+// 修改joinPlan方法 - 打开 modal
+const joinPlan = () => {
+  showModal.value = true;
+};
+
+// 添加确认方法 - 处理确认逻辑
+const confirmJoin = async () => {
   try {
     console.log('正在加入计划', props.id);
-    
-    const sanitizedContent = props.content.map(item => 
+
+    const sanitizedContent = props.content.map(item =>
       item.replace(/^"+|"+$/g, '')
     );
 
     const response = await api.post(
-      '/plan/submit_plan', // 更新API端点
+      '/plan/submit_plan',
       {
         标题: props.title,
         时间: props.plan_time,
-        计划步骤内容列表: sanitizedContent // 按新字段名传递数据
+        计划步骤内容列表: sanitizedContent
       }
     );
 
-    console.log('加入计划成功', response.data);
-    emit('join', props.id);
-  } catch (error) {
+    // 检查后端返回的数据和消息
+    if (response.data && response.data.message === '计划提交成功') {
+      console.log('加入计划成功', response.data);
+      // 使用后端返回的消息或自定义消息
+      // 这里就是弹出 toast 通知的地方
+      toast.success(response.data.message || '计划已成功加入！');
+      emit('join', props.id);
+      // 成功后确保关闭 modal (如果 Modal 组件的 confirm 没有关闭它)
+      // showModal.value = false; // 通常由 Modal 内部处理 v-model 更新
+    } else {
+      // 如果后端返回了数据但消息不对，或者没有返回期望的结构
+      console.warn('加入计划请求成功，但响应消息非预期:', response.data);
+      // 可以选择显示一个通用成功消息，或根据实际情况处理
+      toast.info('操作已提交，但响应状态未知。');
+      // 同样，确保 Modal 关闭
+      showModal.value = false;
+    }
+
+  } catch (error: any) { // 明确 error 类型或使用 any
     console.error('加入计划失败', error);
+    // 检查 error 对象中是否包含后端返回的错误信息
+    const errorMessage = error?.response?.data?.message || '加入计划失败，请稍后重试。';
+    toast.error(errorMessage);
+    // API 调用失败，需要手动关闭 Modal
+    showModal.value = false;
   }
+  // 移除了 finally 块，因为成功和失败路径都已经处理了 Modal 关闭
 };
 </script>
 
