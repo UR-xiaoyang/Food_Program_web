@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineEmits, ref, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import left_list from "./left_list.vue";
 import { useRoute, onBeforeRouteLeave } from 'vue-router'; // 引入路由相关
 

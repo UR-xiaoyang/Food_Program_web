@@ -183,7 +183,7 @@ const handleSendMessage = async (message: { text: string; type: 'text' | 'plan' 
     const newMessages: Message[] = [];
 
     while ((match = planRegex.exec(aiResponse)) !== null) {
-      const [fullMatch, planContent] = match;
+      const [planContent] = match;
       const start = match.index;
       const end = planRegex.lastIndex;
 
@@ -264,7 +264,7 @@ const handleSendMessage = async (message: { text: string; type: 'text' | 'plan' 
 
     // 将新解析的消息添加到聊天中
     newMessages.forEach(msg => {
-      messages.value[currentChatId.value].push(msg);
+      messages.value[currentChatId.value || 0].push(msg);
     });
 
     saveCurrentMessages();

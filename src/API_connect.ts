@@ -37,14 +37,18 @@ export const api = axios.create({
 api.interceptors.request.use(
     async (config) => {
         if (!apiBaseUrl) {
-            await loadConfig(); // Ensure config is loaded
+            await loadConfig(); // 确保配置已加载
         }
-        config.baseURL = apiBaseUrl; // Set the base URL dynamically
+        config.baseURL = apiBaseUrl;
 
-        // Optionally set Authorization header if a token exists
+        // 强制检查并设置Authorization头
         const token = getCookie('token');
         if (token) {
+            // 覆盖现有Authorization头确保使用最新token
             config.headers['Authorization'] = `Bearer ${token}`;
+        } else {
+            // 可选的token不存在处理
+            console.warn('No authentication token found in cookies');
         }
         return config;
     },

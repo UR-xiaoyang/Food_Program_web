@@ -56,9 +56,8 @@ const showSection = (sectionId: string) => {
       <nav>
         <ul>
           <li><router-link to="/">首页</router-link></li>
-          <li><router-link to="/news">美食新闻</router-link></li>
-          <li><router-link to="/recipes">食谱库</router-link></li>
           <li><router-link to="/plan">计划</router-link></li>
+          <li><router-link to="/planList">计划列表</router-link></li>
           <li><router-link to="/nutrition">营养分析</router-link></li>
           <li><router-link to="/user_center">个人中心</router-link></li>
         </ul>

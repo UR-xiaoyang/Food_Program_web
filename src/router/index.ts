@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import MainContent from '../components/MainContent.vue'; // 主页
+import MainContent from "@/components/MainContent.vue";  // 使用@别名
 import Login from '../components/user/log_on.vue'; // 登录组件
 import Register from "../components/user/register.vue";
 import user_center from "../components/user_center/user_center.vue";
@@ -7,6 +7,7 @@ import UserProfile from "../components/user_center/UserProfile.vue";
 import Notice from "../components/user_center/notice.vue";
 import Chat from "../components/plan/Chat.vue";
 import UnderConstruction from "../components/UnderConstruction.vue"; // 正在施工的组件
+import NutritionAnalysis from "../components/nutrition/NutritionAnalysis.vue"; // 营养分析组件
 
 const routes = [
     {
@@ -48,27 +49,24 @@ const routes = [
         component: Chat,
     },
     {
-        path: '/news',
-        name: 'news',
-        component: UnderConstruction,
-        props: { pageName: '美食新闻' }, // 传递 pageName 给 UnderConstruction
-    },
-    {
-        path: '/recipes',
-        name: 'recipes',
-        component: UnderConstruction,
-        props: { pageName: '食谱库' }, // 传递 pageName 给 UnderConstruction
-    },
-    {
         path: '/nutrition',
         name: 'nutrition',
-        component: UnderConstruction,
-        props: { pageName: '营养分析' }, // 传递 pageName 给 UnderConstruction
+        component: NutritionAnalysis,
     },
     {
         path: '/UnderConstruction',
         name: 'UnderConstruction',
         component: UnderConstruction,
+    },
+    {
+        path: '/planList',
+        name: 'planList',
+        component: () => import('../components/plan_list/PlanList.vue'),
+    },
+    {
+        path: '/notifications',
+        name: 'notifications',
+        component: () => import('../components/user_center/notice.vue'),
     }
 ];
 

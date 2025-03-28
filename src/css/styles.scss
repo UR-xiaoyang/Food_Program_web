@@ -1,11 +1,12 @@
 // 导入 SCSS 文件
-@import 'variables';
-@import 'reset';
-@import 'header';
-@import 'main';
-@import 'button';
-@import 'footer';
-@import "nutrition";
+@use 'variables' as *;
+@use 'reset';
+@use 'header';
+@use 'main';
+@use 'button';
+@use 'footer';
+@use 'nutrition';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
