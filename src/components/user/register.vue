@@ -92,16 +92,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch, nextTick } from 'vue';
-import { useRouter } from 'vue-router';  // 引入 useRouter
-import { api } from "../../API_connect.ts";
-import Modal from "../Modal.vue";
-import QRCode from "qrcode";  // 确保使用的是正确的 QRCode 库
+import { ref, watch, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
+import { api } from '../../API_connect.ts';
+import Modal from '../Modal.vue';
+import QRCode from 'qrcode';
 
-// 引入 router
 const router = useRouter();
 
-// 数据绑定
 const username = ref('');
 const email = ref('');
 const password = ref('');
@@ -117,15 +115,16 @@ const showLoginLink = ref(true);
 const errorMessage = ref('');
 const successMessage = ref('');
 const qrcodeData = ref('');
-const qrcodeCanvas = ref<HTMLCanvasElement | null>(null);  // 明确类型
+const qrcodeCanvas = ref<null | HTMLCanvasElement>(null);
 const isModalVisible = ref(false);
 
-// 处理输入框变化
+// 处理输入变化
 const handleUsernameInput = () => {
   if (username.value.trim()) {
     showEmailField.value = true;
   }
 };
+
 
 const handleEmailInput = () => {
   if (email.value.trim()) {
@@ -133,17 +132,20 @@ const handleEmailInput = () => {
   }
 };
 
+
 const handlePasswordInput = () => {
   if (password.value.trim()) {
     showConfirmPasswordField.value = true;
   }
 };
 
+
 const handleConfirmPasswordInput = () => {
   if (confirmPassword.value.trim() && showCaptchaField.value === false) {
     showVerifyButton.value = true;
   }
 };
+
 
 // 处理注册逻辑
 const handleRegister = async () => {
@@ -247,124 +249,5 @@ const goToLogin = () => {
 </script>
 
 <style scoped lang="scss">
-/* 样式保持大部分不变，若需要，可以根据需求调整 */
-.register-background {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100vh;
-  background-image: url('../../assets/root_background.png');
-  background-size: cover;
-  background-position: center;
-  backdrop-filter: blur(15px);
-  padding: 20px;
-}
-
-.register-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 500px;
-  padding: 30px;
-  border-radius: 10px;
-  background-color: rgba(128, 128, 128, 0.5);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.register-title {
-  margin-bottom: 20px;
-  font-size: 2rem;
-  color: #ffffff;
-  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
-}
-
-.form-group {
-  margin-bottom: 15px;
-  width: 100%;
-}
-
-.form-group label {
-  font-size: 1rem;
-  color: #ffffff;
-  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
-}
-
-.form-group input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 5px;
-  background-color: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-}
-
-.form-group input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: #f39c12;
-  box-shadow: 0 0 8px rgba(243, 156, 18, 0.6);
-}
-
-.cta-button {
-  width: 100%;
-  padding: 10px;
-  background-color: #f39c12;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.cta-button:hover {
-  background-color: #e67e22;
-}
-
-/* 单独定义验证码发送按钮的样式（可选） */
-.send-verification-button {
-  background-color: #3498db;
-}
-
-.send-verification-button:hover {
-  background-color: #2980b9;
-}
-
-/* 验证码输入框样式（可选） */
-.captcha-input {
-  border-color: #3498db;
-}
-
-.login-link, .login-link a {
-  margin-top: 15px;
-  color: #ffffff;
-  text-decoration: none;
-  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
-}
-
-.error-message {
-  color: #ff4d4d;
-  font-size: 0.9rem;
-  font-weight: bold;
-  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
-}
-
-.success-message {
-  color: #4caf50;
-  font-size: 0.9rem;
-  font-weight: bold;
-  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
-}
-
-/* 确保 canvas 显示正确 */
-canvas {
-  max-width: 100%;
-  height: auto;
-}
+@import url('../../css/user/register.scss');
 </style>

@@ -37,13 +37,13 @@ const handleLogout = () => {
   router.push('/');
 };
 
-// 锚点跳转逻辑
-const showSection = (sectionId: string) => {
-  const section = document.getElementById(sectionId);
-  if (section) {
-    section.scrollIntoView({ behavior: 'smooth' });
-  }
-};
+// 锚点跳转逻辑 (已移除)
+// const showSection = (sectionId: string) => {
+//   const section = document.getElementById(sectionId);
+//   if (section) {
+//     section.scrollIntoView({ behavior: 'smooth' });
+//   }
+// };
 </script>
 
 <template>
@@ -71,7 +71,6 @@ const showSection = (sectionId: string) => {
         </template>
         <template v-else>
           <span>欢迎, {{ username }}</span>
-          <router-link to="/notifications">通知</router-link>
           <a href="#logout" @click.prevent="handleLogout">登出</a>
         </template>
       </div>

@@ -119,7 +119,7 @@ const handleScroll = (event: WheelEvent) => {
 };
 
 const toggleCompleted = (meal: string) => {
-  completed.value[meal] = !completed.value[meal];
+  (completed.value as Record<string, boolean>)[meal] = !(completed.value as Record<string, boolean>)[meal];
 };
 
 onMounted(() => {

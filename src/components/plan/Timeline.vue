@@ -40,14 +40,26 @@
         </ol>
       </div>
     </div>
-
-    <!-- 将 Modal 移到主容器内部 -->
-    <!-- 使用 v-model 替代 :is-visible 和 @close -->
-    <Modal v-model="showModal" @confirm="confirmJoin">
-      <template #content>
-        <h3 class="text-lg font-medium mb-4">确认加入计划</h3>
-        <p>您确定要加入"{{ title }}"计划吗？</p>
-      </template>
+    <!-- 使用 Modal 组件，并根据 Modal.vue 的 props 和 emits 进行调整 -->
+    <Modal :isVisible="showModal" @close="showModal = false">
+      <!-- 模态框内容 -->
+      <h3 class="text-lg font-medium mb-4">确认加入计划</h3>
+      <p class="mb-6">您确定要加入"{{ title }}"计划吗？</p>
+      <!-- 添加操作按钮 -->
+      <div class="flex justify-end space-x-3">
+        <button
+          @click="showModal = false"
+          class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition-colors duration-200"
+        >
+          取消
+        </button>
+        <button
+          @click="confirmJoin"
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+        >
+          确认
+        </button>
+      </div>
     </Modal>
   </div>
 </template>
@@ -129,26 +141,21 @@ const confirmJoin = async () => {
       // 这里就是弹出 toast 通知的地方
       toast.success(response.data.message || '计划已成功加入！');
       emit('join', props.id);
-      // 成功后确保关闭 modal (如果 Modal 组件的 confirm 没有关闭它)
-      // showModal.value = false; // 通常由 Modal 内部处理 v-model 更新
+      showModal.value = false; // 成功后关闭 Modal
     } else {
       // 如果后端返回了数据但消息不对，或者没有返回期望的结构
       console.warn('加入计划请求成功，但响应消息非预期:', response.data);
       // 可以选择显示一个通用成功消息，或根据实际情况处理
       toast.info('操作已提交，但响应状态未知。');
-      // 同样，确保 Modal 关闭
-      showModal.value = false;
+      showModal.value = false; // 响应非预期，关闭 Modal
     }
 
   } catch (error: any) { // 明确 error 类型或使用 any
     console.error('加入计划失败', error);
-    // 检查 error 对象中是否包含后端返回的错误信息
     const errorMessage = error?.response?.data?.message || '加入计划失败，请稍后重试。';
     toast.error(errorMessage);
-    // API 调用失败，需要手动关闭 Modal
-    showModal.value = false;
+    showModal.value = false; // API 调用失败，关闭 Modal
   }
-  // 移除了 finally 块，因为成功和失败路径都已经处理了 Modal 关闭
 };
 </script>
 

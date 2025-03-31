@@ -1,37 +1,29 @@
 <template>
-  <div v-if="modelValue" class="modal-overlay" @click.self="close"> <!-- 添加点击遮罩层关闭 -->
+  <div v-if="isVisible" class="modal-overlay" @click.self="close"> <!-- Use isVisible prop -->
     <div class="modal-content">
       <button class="close-button" @click="close">×</button>
-      <slot name="content"></slot>
-      <div class="modal-actions">
-        <!-- 添加取消按钮 -->
-        <button class="cancel-button" @click="close">取消</button>
-        <!-- 修改确认按钮文本 -->
-        <button class="confirm-button" @click="confirm">确认</button>
-      </div>
+      <slot></slot> <!-- Changed to default slot -->
+      <!-- Removed the modal-actions div and its buttons -->
     </div>
   </div>
 </template>
 
 <script setup>
 const props = defineProps({
-  modelValue: {
+  isVisible: { // Changed prop name from modelValue to isVisible
     type: Boolean,
     required: true
   }
 });
 
-const emit = defineEmits(['update:modelValue', 'confirm']);
+// Define only the close event
+const emit = defineEmits(['close']);
 
 const close = () => {
-  emit('update:modelValue', false);
+  emit('close'); // Emit 'close' event
 };
 
-const confirm = () => {
-  emit('confirm'); // 触发 confirm 事件，让 Timeline.vue 执行 confirmJoin
-  // 确认后也关闭弹窗 - 取消这行代码的注释
-  emit('update:modelValue', false); // 触发 update:modelValue 事件，将 Timeline.vue 中的 showModal 设为 false
-};
+// Removed confirm function and related emit
 </script>
 
 <style scoped>
@@ -67,37 +59,5 @@ const confirm = () => {
   cursor: pointer;
 }
 
-.modal-actions {
-  display: flex;
-  justify-content: flex-end; /* 将按钮靠右对齐 */
-  gap: 10px; /* 添加按钮间距 */
-  margin-top: 20px;
-}
-
-/* 添加取消按钮样式 (可以根据需要调整) */
-.cancel-button {
-  padding: 8px 16px;
-  background-color: #f3f4f6; /* 灰色背景 */
-  color: #1f2937; /* 深灰色文字 */
-  border: 1px solid #d1d5db; /* 边框 */
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.cancel-button:hover {
-  background-color: #e5e7eb; /* 悬停时变深 */
-}
-
-.confirm-button {
-  padding: 8px 16px;
-  background-color: #2563eb; /* 蓝色背景 (匹配加入计划按钮) */
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.confirm-button:hover {
-  background-color: #1d4ed8; /* 悬停时变深 */
-}
+/* Removed styles for modal-actions, cancel-button, confirm-button */
 </style>

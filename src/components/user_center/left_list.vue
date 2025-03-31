@@ -13,19 +13,6 @@
         </div>
       </router-link>
 
-      <router-link to="/user_center/notice" class="no-underline">
-        <div
-            class="menu-item"
-            :class="{ active: activeItem === 'notifications' }"
-            @mouseover="hover = 'notifications'"
-            @mouseleave="hover = ''"
-            @click="goTo('notifications')">
-          <i class="icon-calendar"></i>
-          <span>通知</span>
-          <span class="badge" v-if="unreadCount">{{ unreadCount }}</span>
-        </div>
-      </router-link>
-
       <div
           class="menu-item"
           :class="{ active: activeItem === 'plans' }"
@@ -64,7 +51,7 @@ export default {
         name: '用户姓名',
         avatar: 'avatar-url.jpg',
       },
-      unreadCount: 5,
+      
       hover: '',
       activeItem: 'user',  // 默认选中 "个人信息"
       greeting: this.getGreeting(), // 计算问候语
@@ -84,8 +71,12 @@ export default {
       }
     },
     goTo(section) {
-      this.activeItem = section; // 更新选中的菜单项
-      console.log(`Navigating to ${section}`);
+      let path = {
+        'plans': '/planList',
+        'nutrition': '/nutrition'
+      }[section];
+      this.$router.push(path);
+      this.activeItem = section;
     },
   },
 };
@@ -100,12 +91,12 @@ export default {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  justify-content: space-between;
-  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  height: 100%;
 }
 
 .menu {
+  flex: 1 1 auto;
+  overflow-y: auto;
   flex-grow: 1;
   margin-bottom: 20px;
 }

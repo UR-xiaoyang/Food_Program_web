@@ -15,10 +15,10 @@
               class="bg-secondary text-secondary-foreground p-3 rounded-lg max-w-full shadow-lg break-words"
           >
             <Timeline
-                :title="getPlan(message).title || '计划'"
-                :plan_time="getPlan(message).time || '无时间信息'"
-                :content="getPlan(message).content || []"
-                :id="getPlan(message).id || ''"
+                :title="(getPlan(message)?.title) || '计划'"
+                :plan_time="(getPlan(message)?.time) || '无时间信息'"
+                :content="(getPlan(message)?.content) || []"
+                :id="(getPlan(message)?.id) || ''"
             />
           </div>
           <div

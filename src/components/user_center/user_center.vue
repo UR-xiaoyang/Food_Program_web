@@ -1,5 +1,5 @@
 <template>
-  <div class="personal-center" @mousemove="checkMousePosition">
+  <div class="personal-center">
     <left_list />
     <div class="content">
       <router-view /> <!-- 显示路由内容 -->
@@ -8,42 +8,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { onMounted, defineEmits } from 'vue'; // 引入 defineEmits
 import left_list from "./left_list.vue";
-import { useRoute, onBeforeRouteLeave } from 'vue-router'; // 引入路由相关
+import { onBeforeRouteLeave } from 'vue-router'; // 引入路由相关
 
-const emit = defineEmits();
-const show_header = ref(false); // 使用 ref 来保持响应性
+// 修改：确保 emit 被定义，即使 toggleHeader 被移除
+const emit = defineEmits(['toggle-header', 'toggle-bottom-bar']);
 
-const toggleHeader = () => {
-  emit('toggle-header'); // 通知父组件切换头部
-  show_header.value = !show_header.value; // 切换显示状态
-};
-
-const checkMousePosition = (event: MouseEvent) => {
-  if (event.clientY <= 0) {
-    // 鼠标在顶部时触发
-    if (show_header.value) {
-      toggleHeader(); // 切换头部显示
-    }
-  } else if (event.clientY > 0 && !show_header.value) {
-    // 鼠标在区域内且头部隐藏时触发
-    toggleHeader(); // 切换头部显示
-  }
-};
+// 移除未使用的 toggleHeader 函数
+// const toggleHeader = () => {
+//   emit('toggle-header'); // 通知父组件切换头部
+//   show_header.value = !show_header.value; // 切换显示状态
+// };
 
 const toggleBottomBar = () => {
   emit('toggle-bottom-bar'); // 触发事件来通知父组件切换底部栏
 };
 
-onBeforeRouteLeave((to, from, next) => {
+// 修改：添加下划线前缀
+onBeforeRouteLeave((_to, _from, next) => {
   // 在离开当前路由前执行的逻辑
   toggleBottomBar(); // 加载底栏
   next();
 });
 
 onMounted(() => {
-  toggleHeader(); // 在组件挂载时触发一次头部切换
   toggleBottomBar(); // 不加载底栏
 });
 </script>

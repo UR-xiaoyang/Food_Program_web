@@ -8,8 +8,15 @@
             <button class="p-2 hover:bg-gray-100 rounded-full">
               <i class="fas fa-search text-gray-600"></i>
             </button>
-            <!-- 修改 @click 事件，传递 true 参数 -->
-            <button @click="fetchPlans(true)" class="px-4 py-2 bg-green-500 text-white rounded">刷新</button> {{ edit_1 }}
+            <button @click="fetchPlans(true)" class="px-4 py-2 bg-green-500 text-white rounded">刷新</button>
+            <!-- 新增更新按钮 -->
+            <button 
+              @click="updatePlanContents" 
+              :disabled="upload_list.length === 0"
+              class="px-4 py-2 bg-yellow-500 text-white rounded disabled:opacity-50"
+            >
+              更新任务
+            </button>
             <button class="!rounded-button bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 flex items-center whitespace-nowrap">
               <i class="fas fa-plus mr-2"></i>
               新建计划
@@ -65,10 +72,12 @@
             </div>
           </div>
           <div class="ml-4 flex items-center space-x-2">
-            <button class="p-2 rounded-full" :class="plan.status === '未完成' ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'" @click="plan.status !== '未完成' && editPlan(plan.id)">
+             <!-- 修改：确保使用 emit -->
+            <button class="p-2 rounded-full" :class="plan.status === '未完成' ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'" @click="plan.status !== '未完成' && emit('editPlan', plan.id)" :disabled="plan.status === '未完成'">
               <i class="fas fa-edit text-gray-600"></i>
             </button>
-            <button class="p-2 rounded-full" :class="plan.status === '未完成' ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'" @click="plan.status !== '未完成' && deletePlan(plan.id)">
+             <!-- 修改：确保使用 emit -->
+            <button class="p-2 rounded-full" :class="plan.status === '未完成' ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'" @click="plan.status !== '未完成' && emit('deletePlan', plan.id)" :disabled="plan.status === '未完成'">
               <i class="fas fa-trash text-gray-600"></i>
             </button>
           </div>
@@ -78,20 +87,26 @@
   </div>
 </template>
 
-<script lang="ts" setup>
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount, computed, defineEmits } from 'vue'; // 引入 defineEmits
 import { api } from '../../API_connect';
+
+// 定义 emits
+const emit = defineEmits(['editPlan', 'deletePlan']);
 
 const plans = ref([] as any);
 // 修改初始值为 '进行中'
 const currentTab = ref('进行中');
+
+// --- 确保本地没有定义 editPlan 和 deletePlan 函数 ---
+// 如果之前有 const editPlan = () => { ... } 或 const deletePlan = () => { ... }，请删除它们
 
 // 计算属性：根据当前标签过滤计划
 const filteredPlans = computed(() => {
   return plans.value.filter((plan: { status: string }) => plan.status === currentTab.value);
 });
 
-// 获取计划内容
+// 获取计划内容 (保留这一个)
 const fetchPlanContents = async (contentIds: number[]) => {
   try {
     const response = await api.post('/plan/send_plan_contents', null, {
@@ -103,10 +118,11 @@ const fetchPlanContents = async (contentIds: number[]) => {
     return response.data;
   } catch (error) {
     console.error('获取计划内容失败:', error);
+    // 返回一个默认值或重新抛出错误，以便调用者可以处理
+    // 例如: return { contents: [] }; 或 throw error;
+    return undefined; // 或者根据你的错误处理逻辑返回
   }
 };
-
-// In script section
 
 // -- 删除重复的定义 --
 // 注释掉或直接删除从这里开始的重复 fetchPlanContents 函数
@@ -154,6 +170,7 @@ const areAllItemsCompleted = (plan: { items: { completed: boolean }[] }): boolea
 
 
 // --- 修改 fetchPlans 的状态设置逻辑 ---
+// In script section - fetchPlans function
 const fetchPlans = async (forceRefresh = false) => {
   try {
     // --- 从缓存加载 ---
@@ -179,15 +196,50 @@ const fetchPlans = async (forceRefresh = false) => {
       const { data: planData } = await api.post('/plan/send_plan');
       const sortedPlans = planData.sort((a: { plan_id: number; }, b: { plan_id: number; }) => a.plan_id - b.plan_id);
       const fullPlans = await Promise.all(sortedPlans.map(async (plan: any) => {
-        const contentIds = JSON.parse(plan.paln_content_id || '[]');
-        const contents = await fetchPlanContents(contentIds);
-        const items = contents?.contents?.map((item: { text: string; 完成度: number; }) => ({ content: item.text, completed: item.完成度 === 1 })) || [];
+        // 添加字段存在性检查
+        console.log('完整计划对象:', plan);
+        // {{ edit_1 }}
+        // 修正字段名拼写错误并确保使用正确的字段
+        const contentIds = JSON.parse(plan.paln_content_id || '[]'); // 使用 'paln_content_id'
+        console.log('有效内容ID列表:', contentIds);
 
-        // **核心修改**: 优先检查所有子项是否都已完成 (完成度为1)，如果是，则状态直接设为“已完成”，不再考虑日期；否则，再根据日期判断是“进行中”还是“未完成”。
-        let initialStatus: '进行中' | '未完成' | '已完成';
+        // 添加空内容ID过滤
+        if (contentIds.length === 0) {
+            console.warn('Plan ID', plan.plan_id, '没有内容ID');
+            return {
+                id: plan.plan_id,
+                title: plan.plan_name,
+                date: plan.plan_time,
+                status: '未完成',
+                isImportant: false,
+                items: []
+            };
+        }
+
+        // fetchPlanContents 调用不变，但后续处理需要调整
+        const contentsResponse = await fetchPlanContents(contentIds).catch(error => {
+            console.error('获取计划内容失败:', error);
+            // {{ edit_2 }}
+            // 返回一个包含空 contents 数组的结构，以便后续处理
+            return { contents: [] };
+        });
+
+        // {{ edit_3 }}
+        // 根据新的响应结构修正数据访问路径
+        // 注意：fetchPlanContents 返回的是 { plan_ids: [...], contents: [...] }
+        const items = contentsResponse?.contents?.map((item: any) => ({
+          content: item.text,
+          completed: item.完成度 === 1,
+          id: item.id // 确保使用了 content item 的 id
+        })) || []; // 添加空数组回退
+
+        console.log('处理后的items:', items);
+
+        // 核心修改: 优先检查所有子项是否都已完成
         // 创建临时的 plan 对象用于 areAllItemsCompleted 判断
         const tempPlanForCheck = { items: items };
-        if (areAllItemsCompleted(tempPlanForCheck)) { // {{ edit_1 }} 已移除此处的占位符
+        let initialStatus; // <--- 使用 let 声明 initialStatus
+        if (areAllItemsCompleted(tempPlanForCheck)) { // <--- 移除了占位符 {{ edit_1 }}
           // 如果所有项都已完成，直接设为 "已完成"
           initialStatus = '已完成';
         } else {
@@ -234,62 +286,84 @@ onMounted(() => {
 });
 
 // Method to mark a plan as completed (triggered by button click)
-const completePlan = (planId: number) => {
+const completePlan = async (planId: number) => {
   const planIndex = plans.value.findIndex((p: any) => p.id === planId);
   if (planIndex !== -1 && plans.value[planIndex].status === '进行中' && areAllItemsCompleted(plans.value[planIndex])) {
-    // 确认是进行中且所有项完成才设置为已完成
-    plans.value[planIndex].status = '已完成';
-    storagePlans(plans.value);
-    console.log(`计划 ID ${planId} 已标记为完成`);
+    try {
+      // 准备要更新的任务项数据
+      const updateData = plans.value[planIndex].items.map((item: any) => ({
+        uuid: item.id,
+        completed: item.completed
+      }));
+
+      // 发送PUT请求更新任务状态
+      await api.put('/plan/update_plan_contents', updateData);
+
+      // 更新本地状态
+      plans.value[planIndex].status = '已完成';
+      storagePlans(plans.value);
+      console.log(`计划 ID ${planId} 已标记为完成`);
+    } catch (error) {
+      console.error('更新任务状态失败:', error);
+      alert('更新任务状态失败，请稍后重试');
+    }
   } else {
+     // --- 这部分 else 逻辑是处理 completePlan 失败或条件不满足的情况 ---
      if (planIndex === -1) {
         console.error(`未找到 ID 为 ${planId} 的计划`);
-     } else {
-        console.warn(`Plan ID ${planId} completion condition not met. Status: ${plans.value[planIndex].status}, All items completed: ${areAllItemsCompleted(plans.value[planIndex])}`);
+     } else if (plans.value[planIndex].status !== '进行中') {
+        console.warn(`计划 ID ${planId} 状态为 ${plans.value[planIndex].status}, 无法标记为完成。`);
+     } else if (!areAllItemsCompleted(plans.value[planIndex])) {
+        console.warn(`计划 ID ${planId} 尚有未完成项目, 无法标记为完成。`);
      }
+     // 移除了嵌套的 toggleItem 定义
   }
-};
-
+}; // <--- completePlan 函数定义结束
 
 // --- 修改 toggleItem 的状态更新逻辑 ---
+// 将 toggleItem 函数移到 completePlan 外部
+const upload_list = ref<any[]>([]);  // 新增：存储更改的任务状态
+
+// 修改 toggleItem 函数
 const toggleItem = (planId: number, itemIndex: number) => {
   const planIndex = plans.value.findIndex((p: any) => p.id === planId);
   if (planIndex !== -1) {
     const plan = plans.value[planIndex];
+    const item = plan.items[itemIndex];
 
-     // '未完成' 或 '已完成' 状态下不允许直接通过 toggle 操作 (虽然 input disabled 了，双重保险)
-     // 注意：这里的条件已在 input 的 :disabled 中处理，但保留逻辑以防万一
-     // if (plan.status === '未完成' || plan.status === '已完成') {
-     //    console.log(`Plan ID ${planId} is '${plan.status}', item toggling disabled.`);
-     //    return;
-     // }
-     // 修正：允许在"已完成"状态下取消勾选
-
-     // '未完成'状态不允许勾选
-     if (plan.status === '未完成') {
-        console.log(`Plan ID ${planId} is '未完成', item toggling disabled.`);
-        return;
-     }
-
+    // '未完成'状态不允许勾选
+    if (plan.status === '未完成') {
+      console.log(`Plan ID ${planId} is '未完成', item toggling disabled.`);
+      return;
+    }
 
     // 切换项目完成状态
-    plan.items[itemIndex].completed = !plan.items[itemIndex].completed;
+    item.completed = !item.completed;
+
+    // 添加到或更新upload_list
+    const existingIndex = upload_list.value.findIndex(u => u.uuid === item.id);
+    if (existingIndex !== -1) {
+      upload_list.value[existingIndex].completed = item.completed;
+    } else {
+      upload_list.value.push({
+        uuid: item.id,
+        completed: item.completed
+      });
+    }
 
     // **核心修改**: 状态管理逻辑
-    if (!plan.items[itemIndex].completed && plan.status === '已完成') { {{ edit_3 }}
+    if (!plan.items[itemIndex].completed && plan.status === '已完成') {
       // 1. 如果计划当前是 '已完成' 状态，并且用户正在取消勾选某一项
       //    则计划状态需要回退到 '进行中' 或 '未完成' (根据日期)
       plan.status = getStatusBasedOnDate(plan);
       console.log(`Plan ID ${planId} reverted to status: ${plan.status} due to item uncheck.`);
-    } else if (plan.items[itemIndex].completed && areAllItemsCompleted(plan) && plan.status !== '已完成') { {{ edit_4 }}
+    } else if (plan.items[itemIndex].completed && areAllItemsCompleted(plan) && plan.status !== '已完成') {
       // 2. 如果用户刚刚勾选了某一项，并且现在所有项都已完成，
       //    且计划当前状态不是 '已完成' (避免重复设置)，则将状态更新为 '已完成'
       plan.status = '已完成';
       console.log(`Plan ID ${planId} automatically set to '已完成' as all items are now completed.`);
     }
-    // else:
-    // 3. 如果正在勾选但未完成所有项，状态保持 '进行中' 不变。
-    // 4. 如果在 '已完成' 状态下勾选（理论上不应发生，因为checkbox禁用），状态保持 '已完成'。
+    // else: (保持不变)
 
     // 更新本地存储
     storagePlans(plans.value);
@@ -298,12 +372,22 @@ const toggleItem = (planId: number, itemIndex: number) => {
   }
 };
 
-// --- editPlan 和 deletePlan 保持不变 ---
-const editPlan = (planId: number) => {
-  // ... existing logic ...
-};
-const deletePlan = (planId: number) => {
-  // ... existing logic ...
+// 新增：更新任务的函数
+const updatePlanContents = async () => {
+  if (upload_list.value.length === 0) {
+    alert('没有需要更新的任务');
+    return;
+  }
+
+  try {
+    await api.put('/plan/update_plan_contents', upload_list.value);
+    alert('任务更新成功');
+    fetchPlans(true); // 强制刷新数据
+    upload_list.value = []; // 清空更新列表
+  } catch (error) {
+    console.error('更新任务失败:', error);
+    alert('更新任务失败，请稍后重试');
+  }
 };
 </script>
 

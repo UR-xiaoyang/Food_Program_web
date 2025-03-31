@@ -3,7 +3,7 @@
   <div class="h-screen flex bg-background text-primary-foreground">
     <Sidebar
         :chats="chats"
-        :currentChatId="currentChatId"
+        :currentChatId="currentChatId === null ? undefined : currentChatId"
         @select-chat="selectChat"
         @create-chat="createChat"
         @delete-chat="deleteChat"

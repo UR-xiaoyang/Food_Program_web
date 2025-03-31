@@ -53,7 +53,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, inject } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from "../../API_connect.ts";
 
@@ -70,8 +70,8 @@ const errorMessage = ref('');
 const successMessage = ref('');
 
 // 从 provide 注入登录状态
-const isLoggedIn = inject('isLoggedIn');
-const globalUsername = inject('username');
+// const isLoggedIn = inject('isLoggedIn');
+// const globalUsername = inject('username');
 
 const handleEmailInput = () => {
   if (username.value.trim()) {
@@ -133,7 +133,12 @@ const handleLogin = async () => {
     }
   } catch (error) {
     console.error('请求出错:', error);
-    errorMessage.value = `请求出错：${error.message}`;
+    // 修改：添加类型检查
+    if (error instanceof Error) {
+      errorMessage.value = `请求出错：${error.message}`;
+    } else {
+      errorMessage.value = `发生未知错误`;
+    }
   }
 };
 

@@ -4,7 +4,6 @@ import Login from '../components/user/log_on.vue'; // 登录组件
 import Register from "../components/user/register.vue";
 import user_center from "../components/user_center/user_center.vue";
 import UserProfile from "../components/user_center/UserProfile.vue";
-import Notice from "../components/user_center/notice.vue";
 import Chat from "../components/plan/Chat.vue";
 import UnderConstruction from "../components/UnderConstruction.vue"; // 正在施工的组件
 import NutritionAnalysis from "../components/nutrition/NutritionAnalysis.vue"; // 营养分析组件
@@ -36,11 +35,6 @@ const routes = [
                 name: 'user_profile',
                 component: UserProfile,
             },
-            {
-                path: "notice",
-                name: "notice",
-                component: Notice,
-            }
         ]
     },
     {
@@ -62,11 +56,6 @@ const routes = [
         path: '/planList',
         name: 'planList',
         component: () => import('../components/plan_list/PlanList.vue'),
-    },
-    {
-        path: '/notifications',
-        name: 'notifications',
-        component: () => import('../components/user_center/notice.vue'),
     }
 ];
 

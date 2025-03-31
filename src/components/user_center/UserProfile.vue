@@ -8,20 +8,40 @@
             <div class="info-item" v-for="(项, 索引) in 信息项" :key="索引">
               <label>{{ 项.标签 }}:</label>
               <input v-if="项.类型 === 'input'"
-                     type="text"
+                     :type="项.标签.includes('年龄') || 项.标签.includes('体重') || 项.标签.includes('身高') ? 'number' : 'text'"
                      v-model="用户[项.模型]"
                      :min="项.最小值"
+                     :max="项.最大值"
                      required
                      @input="验证输入(项)" />
               <select v-else-if="项.类型 === 'select'"
                       v-model="用户[项.模型]"
                       required>
+                <option disabled value="">请选择</option> <!-- 添加一个默认的禁用选项 -->
                 <option v-for="选项 in 项.选项" :key="选项" :value="选项">{{ 选项 }}</option>
               </select>
-              <textarea v-else-if="项.类型 === 'textarea'"
-                        v-model="食物选择字符串"
-                        @input="更新食物选择"
-                        required></textarea>
+              <!-- 修改：处理自定义多选下拉菜单 -->
+              <div v-else-if="项.类型 === 'multiselect'" class="custom-multiselect">
+                <!-- 显示框 + 触发器 -->
+                <input type="text"
+                       :value="formatSelectedOptions(用户[项.模型])"
+                       readonly
+                       @click="toggleDropdown(项.模型)"
+                       class="multiselect-display"
+                       placeholder="点击选择偏好">
+                <!-- 下拉复选框面板 -->
+                <div v-show="dropdownVisible[项.模型]" class="multiselect-dropdown">
+                  <div v-for="选项 in 项.选项" :key="选项" class="checkbox-item">
+                    <input type="checkbox"
+                           :id="`${项.模型}-${选项}`"
+                           :value="选项"
+                           v-model="用户[项.模型]">
+                    <label :for="`${项.模型}-${选项}`">{{ 选项 }}</label>
+                  </div>
+                  <!-- 可选：添加关闭按钮 -->
+                  <!-- <button type="button" @click="toggleDropdown(项.模型)">完成</button> -->
+                </div>
+              </div>
             </div>
           </div>
           <button type="submit">更新信息</button>
@@ -55,30 +75,27 @@ export default {
         性别: '',
         体重: null,
         身高: null,
-        健康状况: '',
-        饮食偏好: ''
+        健康状况: '', // 保持字符串，单选下拉菜单的值
+        饮食偏好: [] // 改为空数组以适应多选 v-model
       },
       信息项: [
         {标签: '年龄', 类型: 'input', 模型: '年龄', 最小值: 0, 最大值: 120},
         {标签: '性别', 类型: 'select', 模型: '性别', 选项: ['男', '女']},
         {标签: '体重 (kg)', 类型: 'input', 模型: '体重', 最小值: 0, 最大值: 500},
         {标签: '身高 (cm)', 类型: 'input', 模型: '身高', 最小值: 0, 最大值: 300},
-        {标签: '健康状况', 类型: 'input', 模型: '健康状况'},
-        {标签: '饮食偏好', 类型: 'input', 模型: '饮食偏好'}
+        {标签: '健康状况', 类型: 'select', 模型: '健康状况', 选项: ['良好', '一般', '需关注', '其他']}, // 修改为 select 类型，并添加选项
+        {标签: '饮食偏好', 类型: 'multiselect', 模型: '饮食偏好', 选项: ['无特殊', '素食', '低糖', '低脂', '高蛋白', '清真']} // 修改为 multiselect 类型，并添加选项
       ],
       showModal: false, // 控制弹窗显示
+      // 新增：控制自定义下拉菜单的显示状态，用模型名称作为键
+      dropdownVisible: {
+        饮食偏好: false
+      }
     };
   },
 
   computed: {
-    食物选择字符串: {
-      get() {
-        return this.用户.食物选择?.join(', ') || '';
-      },
-      set(新值) {
-        this.用户.食物选择 = 新值.split(',').map(项 => 项.trim());
-      },
-    },
+    // {{ Removed computed property '食物选择字符串' }}
   },
 
   methods: {
@@ -122,7 +139,8 @@ export default {
             体重: 用户信息[4],
             身高: 用户信息[5],
             健康状况: 用户信息[6],
-            饮食偏好: 用户信息[7]
+            // 将从 API 获取的字符串（假设是逗号分隔）转换为数组
+            饮食偏好: 用户信息[7] ? 用户信息[7].split(',').map(item => item.trim()) : []
           };
         }
       } catch (错误) {
@@ -130,7 +148,8 @@ export default {
         if (错误.response && 错误.response.status === 403) {
           this.跳转到登录页面(); // 如果返回 403，跳转到登录界面
         } else {
-          alert('获取用户信息失败，请稍后重试。');
+          // {{ Removed alert, handled below }}
+          console.error('获取用户信息失败，请稍后重试。'); // 改为 console 输出，避免过多弹窗
         }
       }
     },
@@ -156,38 +175,55 @@ export default {
       }
     },
 
+    // 新增：切换下拉菜单的显示状态
+    toggleDropdown(模型) {
+      this.dropdownVisible[模型] = !this.dropdownVisible[模型];
+      // 可选：点击其他地方关闭，需要更复杂的事件处理
+    },
+
+    // 新增：格式化选中的项目以供显示
+    formatSelectedOptions(optionsArray) {
+      if (!optionsArray || optionsArray.length === 0) {
+        return '请选择偏好';
+      }
+      return optionsArray.join(', ');
+    },
+
     // 更新用户信息
     async 更新用户信息() {
       try {
         const token = this.获取Token();
         const 请求体 = {
           ID: this.用户.编号,
-          年龄: parseInt(this.用户.年龄), // 将年龄转换为整数
+          年龄: parseInt(this.用户.年龄),
           性别: this.用户.性别,
-          体重: parseFloat(this.用户.体重), // 将体重转换为浮点数
-          身高: parseFloat(this.用户.身高), // 将身高转换为浮点数
+          体重: parseFloat(this.用户.体重),
+          身高: parseFloat(this.用户.身高),
           健康状态: this.用户.健康状况,
-          饮食偏好: this.用户.饮食偏好
+          // 确保饮食偏好是数组才调用 join
+          饮食偏好: Array.isArray(this.用户.饮食偏好) ? this.用户.饮食偏好.join(',') : ''
         };
 
         const 响应 = await api.post('/user/data_write', 请求体, {
           headers: {
-            Authorization: `Bearer ${token}` // 通过 Authorization 头部传递 token
+            Authorization: `Bearer ${token}`
           }
         });
 
         if (响应.status === 200) {
-          console.log('更新后的用户信息:', 响应.data); // 打印出响应信息
-          // 更新成功后，更新 localStorage 中的用户信息
-          localStorage.setItem('userInfo', JSON.stringify(this.用户));
-          this.showModal = true; // 显示弹窗提醒
+          console.log('更新后的用户信息:', 响应.data);
+          this.showModal = true;
+          // 关闭可能打开的下拉菜单
+          Object.keys(this.dropdownVisible).forEach(key => {
+            this.dropdownVisible[key] = false;
+          });
         }
       } catch (错误) {
         console.error('更新用户信息失败:', 错误);
-        if (错误.response && 错误.response.status !== 200) {
-          this.跳转到登录页面(); // 如果返回其他状态码，跳转到登录界面
-        } else {
-          alert('更新失败，请稍后重试。');
+        if (错误.response && 错误.response.status !== 200 && 错误.response.status !== 403) {
+           alert('更新失败，请稍后重试。');
+        } else if (!错误.response) {
+           alert('更新失败，请检查网络连接或稍后重试。');
         }
       }
     },
@@ -246,6 +282,66 @@ input, select, textarea {
   margin-top: 5px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  box-sizing: border-box; /* 确保 padding 不会撑开元素宽度 */
+}
+
+/* 自定义多选下拉菜单样式 */
+.custom-multiselect {
+  position: relative; /* 为下拉面板的绝对定位提供基准 */
+  margin-top: 5px;
+}
+
+.multiselect-display {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff; /* 背景设为白色，使其看起来像输入框 */
+  cursor: pointer; /* 提示用户可以点击 */
+  box-sizing: border-box;
+  min-height: 36px; /* 保证一定高度 */
+  line-height: 1.5; /* 调整行高 */
+}
+
+.multiselect-dropdown {
+  position: absolute;
+  top: 100%; /* 定位在显示框下方 */
+  left: 0;
+  width: 100%;
+  max-height: 150px; /* 限制最大高度，超出则滚动 */
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-top: none; /* 避免双边框 */
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 10; /* 确保在其他元素之上 */
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.checkbox-item {
+  display: flex; /* 使用 flex 布局对齐 */
+  align-items: center; /* 垂直居中对齐 */
+  padding: 5px 8px;
+  cursor: pointer; /* 提示可以点击整行 */
+}
+
+.checkbox-item:hover {
+  background-color: #f0f0f0; /* 鼠标悬停效果 */
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: auto; /* 恢复 checkbox 的默认宽度 */
+  margin-right: 8px; /* 复选框和标签之间的间距 */
+  margin-top: 0; /* 移除继承的 margin-top */
+  vertical-align: middle; /* 尝试垂直对齐 */
+}
+
+.checkbox-item label {
+  margin: 0; /* 移除可能的默认 margin */
+  flex-grow: 1; /* 让标签占据剩余空间 */
+  line-height: 1.2; /* 调整标签行高 */
 }
 
 button {

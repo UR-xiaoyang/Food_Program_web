@@ -19,8 +19,6 @@ import { defineComponent, ref } from "vue";
 import Bottom_bar from "./components/bottom_bar.vue";
 import Header from "./components/header.vue";
 
-import 'animate.css'
-
 export default defineComponent({
   components: { Bottom_bar, Header },
   setup() {
